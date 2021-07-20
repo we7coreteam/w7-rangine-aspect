@@ -6,7 +6,10 @@
         "psr-4": {
             "W7\\Aspect\\": "src/",
             "W7\\Tests\\": "tests/"
-        }
+        },
+        "files": [
+            "src/proxy_class_autoload.php"
+        ]
     },
     "authors": [
         {

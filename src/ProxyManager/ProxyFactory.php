@@ -13,13 +13,17 @@
 namespace W7\Aspect\ProxyManager;
 
 use Closure;
+use Laminas\Code\Generator\ClassGenerator;
 use ProxyManager\Configuration;
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use ProxyManager\Proxy\ValueHolderInterface;
 use ProxyManager\ProxyGenerator\ProxyGeneratorInterface;
+use ProxyManager\Version;
+use ReflectionClass;
 use W7\Aspect\ProxyManager\Generator\LazyLoadingValueHolderGenerator;
 
 class ProxyFactory extends LazyLoadingValueHolderFactory {
+	protected array $checkedClasses = [];
 	protected \ProxyManager\ProxyGenerator\LazyLoadingValueHolderGenerator $generator;
 
 	public function __construct(?Configuration $configuration = null) {
@@ -48,6 +52,63 @@ class ProxyFactory extends LazyLoadingValueHolderFactory {
 	 */
 	public function createDelegationProxy(string $className, array $proxyOptions = []) {
 		return $this->generateProxy($className, $proxyOptions);
+	}
+
+	protected function generateProxy(string $className, array $proxyOptions = []): string {
+		if (array_key_exists($className, $this->checkedClasses)) {
+			$generatedClassName = $this->checkedClasses[$className];
+
+			assert(is_a($generatedClassName, $className, true));
+
+			return $generatedClassName;
+		}
+
+		$proxyParameters = [
+			'className'           => $className,
+			'factory'             => static::class,
+			'proxyManagerVersion' => Version::getVersion(),
+			'proxyOptions'        => $proxyOptions,
+		];
+		$proxyClassName  = $this
+			->configuration
+			->getClassNameInflector()
+			->getProxyClassName($className, $proxyParameters);
+
+		if (! class_exists($proxyClassName)) {
+			$this->generateProxyClass(
+				$proxyClassName,
+				$className,
+				$proxyParameters,
+				$proxyOptions
+			);
+		}
+
+		return $this->checkedClasses[$className] = $proxyClassName;
+	}
+
+	/**
+	 * Generates the provided `$proxyClassName` from the given `$className` and `$proxyParameters`
+	 *
+	 * @param array<string, mixed> $proxyParameters
+	 * @param array<string, mixed> $proxyOptions
+	 *
+	 * @psalm-param class-string $proxyClassName
+	 * @psalm-param class-string $className
+	 */
+	protected function generateProxyClass(
+		string $proxyClassName,
+		string $className,
+		array $proxyParameters,
+		array $proxyOptions = []
+	): void {
+		$className = $this->configuration->getClassNameInflector()->getUserClassName($className);
+		$phpClass  = new ClassGenerator($proxyClassName);
+
+		/** @psalm-suppress TooManyArguments - generator interface was not updated due to BC compliance */
+		$this->getGenerator()->generate(new ReflectionClass($className), $phpClass, $proxyOptions);
+
+		/** @psalm-suppress TooManyArguments - generator interface was not updated due to BC compliance */
+		$this->configuration->getGeneratorStrategy()->generate($phpClass, $proxyOptions);
 	}
 
 	protected function getGenerator(): ProxyGeneratorInterface {
