@@ -12,6 +12,11 @@
 
 namespace W7\Aspect\ProxyManager;
 
+use Illuminate\Pipeline\Pipeline;
+use W7\App;
+use W7\Aspect\Aop\AspectCollector;
+use W7\Aspect\Aop\AspectJoinPoint;
+
 trait ProxyTrait {
 	protected static function __proxyCall(
 		string $originalClassName,
@@ -19,6 +24,21 @@ trait ProxyTrait {
 		array $arguments,
 		\Closure $closure
 	) {
-		return 1;
+		if ($aspects = self::getAspects($originalClassName, $method)) {
+			$aspectJoinPoint = new AspectJoinPoint($closure, $originalClassName, $method, $arguments);
+			$pipeline = new Pipeline(App::getApp()->getContainer());
+			return $pipeline->via('process')
+				->through($aspects)
+				->send($aspectJoinPoint)
+				->then(function (AspectJoinPoint $aspectJoinPoint) {
+					return $aspectJoinPoint->process();
+				});
+		}
+
+		return $closure();
+	}
+
+	private static function getAspects($class, $method): array {
+		return AspectCollector::getAspect($class, $method);
 	}
 }

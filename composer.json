@@ -23,7 +23,8 @@
         "w7/rangine": "~2.5.0",
         "ocramius/proxy-manager": "^2.13",
         "composer-plugin-api": "*",
-        "funkjedi/composer-include-files": "^1.0"
+        "funkjedi/composer-include-files": "^1.0",
+        "illuminate/pipeline": "*"
     },
     "require-dev": {
         "w7/php-cs-fixer": "*",
