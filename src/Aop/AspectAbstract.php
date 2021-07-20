@@ -20,5 +20,7 @@ abstract class AspectAbstract {
 	 */
 	public static $classMethodMap = [];
 
-	abstract public function process(AspectJoinPoint $aspectJoinPoint, \Closure $next);
+	public function process(AspectJoinPoint $aspectJoinPoint, \Closure $next) {
+		return $next($aspectJoinPoint);
+	}
 }
