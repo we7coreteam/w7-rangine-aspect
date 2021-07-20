@@ -11,7 +11,7 @@ class ProxyClassCollector {
 	}
 
 	public static function getProxyClass($originClassName) {
-		$originClassName = ltrim($originClassName, '\\');
-		return self::$classMap[$originClassName] ?? $originClassName;
+		$tmpOriginClassName = ltrim($originClassName, '\\');
+		return self::$classMap[$tmpOriginClassName] ?? $originClassName;
 	}
 }
