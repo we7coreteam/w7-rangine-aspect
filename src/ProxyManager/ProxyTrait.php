@@ -19,5 +19,6 @@ trait ProxyTrait {
 		array $arguments,
 		\Closure $closure
 	) {
+		return 1;
 	}
 }

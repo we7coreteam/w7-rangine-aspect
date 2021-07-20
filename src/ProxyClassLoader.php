@@ -1,5 +1,7 @@
 <?php
 
+namespace W7\Aspect;
+
 /**
  * Rangine Aspect
  *
@@ -10,23 +12,22 @@
  * visited https://www.w7.cc for more details
  */
 
-use ProxyManager\Configuration;
-
 class ProxyClassLoader {
+	use ProxyConfigTrait;
+
 	/**
 	 * @varConfiguration
 	 */
 	protected $configuration;
 
-	public function __construct($baseDir) {
-		$this->configuration = new Configuration();
-		$this->configuration->setProxiesTargetDir($baseDir);
+	public function __construct() {
+		$this->configuration = $this->getConfiguration();
 	}
 
 	public function loadClass($class) {
 		$result = $this->configuration->getProxyAutoloader()($class);
 		if ($result === false) {
-			return false;
+			return null;
 		}
 
 		return true;

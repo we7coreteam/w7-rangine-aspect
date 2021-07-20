@@ -10,8 +10,7 @@
  * visited https://www.w7.cc for more details
  */
 
-use W7\App;
+use W7\Aspect\ProxyClassLoader;
 
-$baseDir = App::getApp()->getRuntimePath() . '/proxy/';
-$proxyClassLoader = new ProxyClassLoader($baseDir);
-spl_autoload_register([$proxyClassLoader, 'loadClass'], true, 1);
+$proxyClassLoader = new ProxyClassLoader();
+spl_autoload_register([$proxyClassLoader, 'loadClass']);
