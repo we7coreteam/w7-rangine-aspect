@@ -12,6 +12,7 @@
 
 namespace W7\Aspect\Command\Aspect;
 
+use Illuminate\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use W7\App;
@@ -35,7 +36,10 @@ class MakeCommand extends CommandAbstract {
 		$classNamespace = '\\W7\\App';
 		$classMethodMap = [];
 		$classProxyMap = [];
+		$filesystem = new Filesystem();
+		$filesystem->deleteDirectory($this->getProxyClassDir());
 		$factory = new ProxyFactory($this->getConfiguration(true));
+
 		/**
 		 * @var SplFileInfo $file
 		 */
@@ -61,7 +65,7 @@ class MakeCommand extends CommandAbstract {
 			'class_method_aspects' => $classMethodMap,
 			'proxy_class' => $classProxyMap
 		];
-		file_put_contents((new LoadConfigBootstrap())->getBuiltInConfigPath() . '/aspect.php', '<?php' . "\n\rreturn " . var_export($data, true) . ';');
+		$filesystem->put((new LoadConfigBootstrap())->getBuiltInConfigPath() . '/aspect.php', '<?php' . "\n\rreturn " . var_export($data, true) . ';');
 
 		$this->output->success('make aspect success');
 	}
