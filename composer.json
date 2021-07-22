@@ -36,11 +36,6 @@
         ]
     },
     "extra": {
-        "class": "W7\\Aspect\\Plugin\\Plugin",
-        "rangine": {
-            "providers": [
-                "W7\\Aspect\\ServiceProvider"
-            ]
-        }
+        "class": "W7\\Aspect\\Plugin\\Plugin"
     }
 }

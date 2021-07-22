@@ -1,13 +1,13 @@
 <?php
 
 /**
- * This file is part of Rangine
+ * Rangine Aspect
  *
- * (c) We7Team 2019 <https://www.rangine.com/>
+ * (c) We7Team 2019 <https://www.w7.cc>
  *
- * document http://s.w7.cc/index.php?c=wiki&do=view&id=317&list=2284
- *
- * visited https://www.rangine.com/ for more details
+ * This is not a free software
+ * Using it under the license terms
+ * visited https://www.w7.cc for more details
  */
 
 namespace W7\Core\Container;
@@ -55,7 +55,7 @@ class Container extends \Illuminate\Container\Container {
 		if (is_object($handle) && (!$handle instanceof \Closure)) {
 			$this->instance($name, $handle);
 		} else {
-			if (is_string($handle)) { $handle = \W7\Aspect\ProxyManager\ProxyClassCollector::getProxyClass($handle);} $this->bind($name, $handle, $shared);
+			$this->bind($name, $handle, $shared);
 		}
 	}
 
@@ -177,7 +177,7 @@ class Container extends \Illuminate\Container\Container {
 		}
 
 		try {
-			$reflector = new \ReflectionClass($concrete);
+			$reflector = new \ReflectionClass($concrete = \W7\Aspect\ProxyManager\ProxyClassCollector::getProxyClass($concrete));
 		} catch (\ReflectionException $e) {
 			throw new BindingResolutionException("Target class [$concrete] does not exist.", 0, $e);
 		}

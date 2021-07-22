@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Rangine Aspect
+ *
+ * (c) We7Team 2019 <https://www.w7.cc>
+ *
+ * This is not a free software
+ * Using it under the license terms
+ * visited https://www.w7.cc for more details
+ */
+
 namespace W7\Aspect\Plugin;
 
 use Composer\Composer;
@@ -32,12 +42,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 	}
 
 	public function deactivate(Composer $composer, IOInterface $io) {
+	}
 
-    }
-
-    public function uninstall(Composer $composer, IOInterface $io) {
-
-    }
+	public function uninstall(Composer $composer, IOInterface $io) {
+	}
 
 	/**
 	 * @return array
@@ -65,22 +73,11 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 
 		$containerPath= $vendorPath . '/w7/rangine/Src/Core/Container/Container.php';
 		include $containerPath;
-		$refFunction = new \ReflectionMethod(new Container() ,'set');
+		$refFunction = new \ReflectionMethod(new Container(), 'build');
 		$content = file_get_contents($containerPath);
 		$eol = $this->getEOL($content);
 		$contents = explode($eol, $content);
-
-		$replaces = [
-			'		if (is_object($handle) && (!$handle instanceof \Closure)) {',
-			'			$this->instance($name, $handle);',
-			'		} else {',
-			'			if (is_string($handle)) { $handle = \W7\Aspect\ProxyManager\ProxyClassCollector::getProxyClass($handle);} $this->bind($name, $handle, $shared);',
-			'		}'
-		];
-		$replaceIndex = 0;
-		for($i = $refFunction->getStartLine(); $i < $refFunction->getEndLine() - 1; ++$i,++$replaceIndex) {
-			$contents[$i] = $replaces[$replaceIndex];
-		}
+		$contents[$refFunction->getStartLine() + 8 ] = '			$reflector = new \ReflectionClass($concrete = \W7\Aspect\ProxyManager\ProxyClassCollector::getProxyClass($concrete));';
 		$content = implode($eol, $contents);
 		file_put_contents($filePath, $content);
 	}
@@ -97,8 +94,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 			"\n",
 			"\r",
 		];
-		foreach($eols as $eol) {
-			if(strpos($content, $eol)) {
+		foreach ($eols as $eol) {
+			if (strpos($content, $eol)) {
 				return $eol;
 			}
 		}

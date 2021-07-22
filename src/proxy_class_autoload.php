@@ -11,6 +11,10 @@
  */
 
 use W7\Aspect\ProxyClassLoader;
+use W7\Aspect\ServiceProvider;
+use W7\Core\Bootstrap\ProviderBootstrap;
 
 $proxyClassLoader = new ProxyClassLoader();
 spl_autoload_register([$proxyClassLoader, 'loadClass']);
+
+array_splice(ProviderBootstrap::$providerMap, 1, 0, ['aspect' => ServiceProvider::class]);
