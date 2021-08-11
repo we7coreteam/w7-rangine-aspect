@@ -17,7 +17,7 @@ use ProxyManager\FileLocator\FileLocator;
 use ProxyManager\GeneratorStrategy\FileWriterGeneratorStrategy;
 
 trait ProxyConfigTrait {
-	protected function getProxyClassDir() {
+	private function getProxyClassDir() {
 		if (defined('RUNTIME_PATH')) {
 			$runtimePath = RUNTIME_PATH;
 		} else {

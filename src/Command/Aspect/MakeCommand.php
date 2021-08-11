@@ -36,8 +36,9 @@ class MakeCommand extends CommandAbstract {
 		$classMethodMap = [];
 		$classProxyMap = [];
 		$filesystem = new Filesystem();
-		$filesystem->deleteDirectory($this->getProxyClassDir());
-		$factory = new ProxyFactory($this->getConfiguration(true));
+		$configure = $this->getConfiguration(true);
+		$filesystem->deleteDirectory($configure->getProxiesTargetDir());
+		$factory = new ProxyFactory($configure);
 
 		/**
 		 * @var SplFileInfo $file
