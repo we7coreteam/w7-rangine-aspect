@@ -20,7 +20,6 @@ use W7\Aspect\Aop\AspectAbstract;
 use W7\Aspect\ProxyConfigTrait;
 use W7\Aspect\ProxyManager\ProxyFactory;
 use W7\Console\Command\CommandAbstract;
-use W7\Core\Bootstrap\LoadConfigBootstrap;
 
 class MakeCommand extends CommandAbstract {
 	use ProxyConfigTrait;
@@ -65,7 +64,7 @@ class MakeCommand extends CommandAbstract {
 			'class_method_aspects' => $classMethodMap,
 			'proxy_class' => $classProxyMap
 		];
-		$filesystem->put((new LoadConfigBootstrap())->getBuiltInConfigPath() . '/aspect.php', '<?php' . "\n\rreturn " . var_export($data, true) . ';');
+		$filesystem->put(App::getApp()->getBuiltInConfigPath() . '/aspect.php', '<?php' . "\n\rreturn " . var_export($data, true) . ';');
 
 		$this->output->success('make aspect success');
 	}

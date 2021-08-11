@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "w7/rangine": "~2.5.0",
+        "w7/rangine": "~2.5.2",
         "ocramius/proxy-manager": "^2.12",
         "composer-plugin-api": "*",
         "funkjedi/composer-include-files": "^1.0",
