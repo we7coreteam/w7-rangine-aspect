@@ -1,7 +1,5 @@
 <?php
 
-namespace W7\Aspect;
-
 /**
  * Rangine Aspect
  *
@@ -12,11 +10,24 @@ namespace W7\Aspect;
  * visited https://www.w7.cc for more details
  */
 
+namespace W7\Aspect;
+
+use ProxyManager\Configuration;
+
+/**
+ * Rangine Aspect
+ *
+ * (c) We7Team 2019 <https://www.w7.cc>
+ *
+ * This is not a free software
+ * Using it under the license terms
+ * visited https://www.w7.cc for more details
+ */
 class ProxyClassLoader {
 	use ProxyConfigTrait;
 
 	/**
-	 * @varConfiguration
+	 * @var Configuration
 	 */
 	protected $configuration;
 
