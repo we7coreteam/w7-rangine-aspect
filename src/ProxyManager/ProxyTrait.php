@@ -12,8 +12,8 @@
 
 namespace W7\Aspect\ProxyManager;
 
+use Illuminate\Container\Container;
 use Illuminate\Pipeline\Pipeline;
-use W7\App;
 use W7\Aspect\Aop\AspectCollector;
 use W7\Aspect\Aop\AspectJoinPoint;
 
@@ -26,7 +26,7 @@ trait ProxyTrait {
 	) {
 		if ($aspects = self::getAspects($originalClassName, $method)) {
 			$aspectJoinPoint = new AspectJoinPoint($closure, $originalClassName, $method, $arguments);
-			$pipeline = new Pipeline(App::getApp()->getContainer());
+			$pipeline = new Pipeline(Container::getInstance());
 			return $pipeline->via('process')
 				->through($aspects)
 				->send($aspectJoinPoint)
