@@ -54,8 +54,7 @@ class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyL
 	 * @throws InvalidProxiedClassException
 	 * @throws InvalidArgumentException
 	 */
-	public function generate(ReflectionClass $originalClass, ClassGenerator $classGenerator, array $proxyParams = []) {
-		$proxyOptions = $proxyParams['proxyOptions'] ?? [];
+	public function generate(ReflectionClass $originalClass, ClassGenerator $classGenerator, array $proxyOptions = []) {
 		CanProxyAssertion::assertClassCanBeProxied($originalClass);
 
 		$composerLoader = $this->getComposerLoader();
