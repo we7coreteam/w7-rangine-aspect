@@ -35,6 +35,17 @@ use function array_map;
  */
 class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyLoadingValueHolderGenerator {
 	protected $defaultTrait = ['\W7\Aspect\ProxyManager\ProxyTrait'];
+
+	protected function getComposerLoader() {
+		if (defined('BASE_PATH')) {
+			$vendorPath = BASE_PATH . '/vendor/';
+		} else {
+			$vendorPath = dirname(__DIR__, 5);
+		}
+
+		return include $vendorPath . 'autoload.php';
+	}
+
 	/**
 	 * {@inheritDoc}
 	 *
@@ -43,11 +54,30 @@ class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyL
 	 * @throws InvalidProxiedClassException
 	 * @throws InvalidArgumentException
 	 */
-	public function generate(ReflectionClass $originalClass, ClassGenerator $classGenerator, array $proxyOptions = []) {
+	public function generate(ReflectionClass $originalClass, ClassGenerator $classGenerator, array $proxyParams = []) {
+		$proxyOptions = $proxyParams['proxyOptions'] ?? [];
 		CanProxyAssertion::assertClassCanBeProxied($originalClass);
 
-		//添加use
-		$parser = new ParserFactory();
+		$composerLoader = $this->getComposerLoader();
+		$file = $composerLoader->findFile($originalClass->getName());
+		$parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
+		$stmts = $parser->parse(file_get_contents($file));
+		/**
+		 * @var \PhpParser\Node\Stmt\Namespace_ $stmt
+		 */
+		foreach ($stmts  as $stmt) {
+			foreach ($stmt->stmts as $_stmt) {
+				if ($_stmt instanceof \PhpParser\Node\Stmt\Use_) {
+					foreach ($_stmt->uses as $use) {
+						$alias = null;
+						if ($use->name->getLast() != $use->getAlias()->name) {
+							$alias = $use->getAlias()->name;
+						}
+						$classGenerator->addUse($use->name->toCodeString(), $alias);
+					}
+				}
+			}
+		}
 
 		/**
 		 * @var ClassReflection $trait
@@ -58,7 +88,6 @@ class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyL
 				$classGenerator->removeMethod($method->getName());
 			}
 		}
-
 		$traits = array_merge($this->defaultTrait, (array)($proxyOptions['proxy_traits'] ?? []));
 		foreach ($traits as $item) {
 			$classGenerator->addTrait($item);
@@ -70,7 +99,7 @@ class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyL
 				$classGenerator->removeMethod($method->getName());
 			}
 		}
-		
+
 		array_map(
 			static function (MethodGenerator $generatedMethod) use ($originalClass, $classGenerator): void {
 				ClassGeneratorUtils::addMethodIfNotFinal($originalClass, $classGenerator, $generatedMethod);
