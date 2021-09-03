@@ -57,6 +57,7 @@ class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyL
 	public function generate(ReflectionClass $originalClass, ClassGenerator $classGenerator, array $proxyOptions = []) {
 		CanProxyAssertion::assertClassCanBeProxied($originalClass);
 
+		//use
 		$composerLoader = $this->getComposerLoader();
 		$file = $composerLoader->findFile($originalClass->getName());
 		$parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
@@ -78,13 +79,15 @@ class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyL
 			}
 		}
 
+		//trait
 		/**
 		 * @var ClassReflection $trait
 		 */
+		$traitMethods = [];
 		foreach ($originalClass->getTraits() as $trait) {
 			$classGenerator->addTrait('\\' . $trait->getName());
 			foreach ($trait->getMethods() as $method) {
-				$classGenerator->removeMethod($method->getName());
+				$traitMethods[] = $method->getName();
 			}
 		}
 		$traits = array_merge($this->defaultTrait, (array)($proxyOptions['proxy_traits'] ?? []));
@@ -92,10 +95,17 @@ class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyL
 			$classGenerator->addTrait($item);
 		}
 
+		//method
 		$proxyMethods = ProxiedMethodsFilter::getProxiedMethods($originalClass, $proxyOptions['proxy_methods'] ?? []);
 		foreach ($proxyMethods as $method) {
-			if ($classGenerator->hasMethod($method->getName())) {
-				$classGenerator->removeMethod($method->getName());
+			$classGenerator->removeMethod($method->getName());
+		}
+		foreach ($originalClass->getMethods() as $method) {
+			if (
+				$method->getDeclaringClass()->getName() !== $originalClass->getName() ||
+				in_array($method->getName(), $traitMethods)
+			) {
+				$classGenerator->hasMethod($method->getName()) && $classGenerator->removeMethod($method->getName());
 			}
 		}
 

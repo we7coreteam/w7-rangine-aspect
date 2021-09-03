@@ -43,8 +43,8 @@ final class ProxiedMethodsFilter {
 	 *
 	 * @return ReflectionMethod[]
 	 */
-	public static function getProxiedMethods(ReflectionClass $class, array $includeAbstractMethods = [], ?array $excluded = null): array {
-		return self::doFilter($class, $includeAbstractMethods, $excluded ?? self::$defaultExcluded);
+	public static function getProxiedMethods(ReflectionClass $class, array $include = [], ?array $excluded = null): array {
+		return self::doFilter($class, $include, $excluded ?? self::$defaultExcluded);
 	}
 
 	/**
@@ -52,20 +52,18 @@ final class ProxiedMethodsFilter {
 	 *
 	 * @return array<int, ReflectionMethod>
 	 */
-	private static function doFilter(ReflectionClass $class, array $includeAbstractMethods = [], array $excluded = [], bool $requireAbstract = false): array {
+	private static function doFilter(ReflectionClass $class, array $include = [], array $excluded = [], bool $requireAbstract = false): array {
 		$ignored = array_flip(array_map('strtolower', $excluded));
 
 		return array_values(array_filter(
 			$class->getMethods(ReflectionMethod::IS_PUBLIC),
-			static function (ReflectionMethod $method) use ($class, $includeAbstractMethods, $ignored, $requireAbstract): bool {
+			static function (ReflectionMethod $method) use ($class, $include, $ignored, $requireAbstract): bool {
 				return (! $requireAbstract || $method->isAbstract())
 					&&
 					(!(array_key_exists(strtolower($method->getName()), $ignored) ||
 						self::methodCannotBeProxied($method)))
 					&&
-					(($method->getDeclaringClass()->getName() === $class->getName() ||
-						($method->getDeclaringClass()->getName() !== $class->getName()
-							&& in_array($method->getName(), $includeAbstractMethods))));
+					(!$include || in_array($method->getName(), $include));
 			}
 		));
 	}
