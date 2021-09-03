@@ -10,7 +10,7 @@
  * visited https://www.w7.cc for more details
  */
 
-namespace W7\Aspect\Provider;
+namespace W7\Aspect;
 
 use W7\Aspect\Aop\AspectCollector;
 use W7\Aspect\ProxyManager\ProxyClassCollector;

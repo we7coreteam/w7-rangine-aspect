@@ -17,6 +17,7 @@ use Laminas\Code\Generator\ClassGenerator;
 use Laminas\Code\Generator\MethodGenerator;
 use Laminas\Code\Reflection\ClassReflection;
 use Laminas\Code\Reflection\MethodReflection;
+use PhpParser\ParserFactory;
 use ProxyManager\Exception\InvalidProxiedClassException;
 use ProxyManager\Generator\Util\ClassGeneratorUtils;
 use ProxyManager\Generator\Util\ProxiedMethodReturnExpression;
@@ -46,6 +47,7 @@ class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyL
 		CanProxyAssertion::assertClassCanBeProxied($originalClass);
 
 		//添加use
+		$parser = new ParserFactory();
 
 		/**
 		 * @var ClassReflection $trait

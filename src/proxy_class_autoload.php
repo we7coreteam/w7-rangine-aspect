@@ -11,7 +11,7 @@
  */
 
 use W7\Aspect\ProxyClassLoader;
-use W7\Aspect\Provider\ServiceProvider;
+use W7\Aspect\ServiceProvider;
 use W7\Core\Bootstrap\ProviderBootstrap;
 
 $proxyClassLoader = new ProxyClassLoader();

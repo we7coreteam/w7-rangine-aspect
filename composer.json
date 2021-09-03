@@ -20,9 +20,8 @@
 	],
 	"require": {
 		"ocramius/proxy-manager": "^2.12",
-		"composer-plugin-api": "*",
-		"funkjedi/composer-include-files": "^1.0",
-		"illuminate/pipeline": "*"
+		"illuminate/pipeline": "*",
+		"nikic/php-parser": "^4.12"
 	},
 	"require-dev": {
 		"w7/php-cs-fixer": "*",
