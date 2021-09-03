@@ -14,6 +14,7 @@ namespace W7\Aspect\ProxyManager;
 
 use Closure;
 use Laminas\Code\Generator\ClassGenerator;
+use Laminas\Code\Generator\TraitGenerator;
 use Laminas\Code\Reflection\ClassReflection;
 use ProxyManager\Configuration;
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
@@ -104,7 +105,12 @@ class ProxyFactory extends LazyLoadingValueHolderFactory {
 	): void {
 		$className = $this->configuration->getClassNameInflector()->getUserClassName($className);
 		$reflectClass = new ClassReflection($className);
-		$phpClass  = ClassGenerator::fromReflection($reflectClass);
+		if ($reflectClass->isTrait()) {
+			$phpClass = TraitGenerator::fromReflection($reflectClass);
+		} else {
+			$phpClass  = ClassGenerator::fromReflection($reflectClass);
+		}
+
 		/** @psalm-suppress TooManyArguments - generator interface was not updated due to BC compliance */
 		$this->getGenerator()->generate($reflectClass, $phpClass, $proxyOptions);
 
