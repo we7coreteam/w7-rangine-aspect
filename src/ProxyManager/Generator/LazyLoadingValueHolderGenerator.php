@@ -16,7 +16,6 @@ use InvalidArgumentException;
 use Laminas\Code\Generator\ClassGenerator;
 use Laminas\Code\Generator\MethodGenerator;
 use Laminas\Code\Reflection\ClassReflection;
-use Laminas\Code\Reflection\MethodReflection;
 use PhpParser\ParserFactory;
 use ProxyManager\Exception\InvalidProxiedClassException;
 use ProxyManager\Generator\Util\ClassGeneratorUtils;
@@ -26,6 +25,7 @@ use ProxyManager\ProxyGenerator\LazyLoadingValueHolder\MethodGenerator\LazyLoadi
 use ReflectionClass;
 use ReflectionMethod;
 
+use W7\Aspect\ProxyManager\Reflection\MethodReflection;
 use function array_map;
 
 /**
