@@ -1,40 +1,31 @@
 {
-    "name": "w7/rangine-aspect",
-    "type": "composer-plugin",
-    "license": "Apache-2.0",
-    "autoload": {
-        "psr-4": {
-            "W7\\Aspect\\": "src/",
-            "W7\\Tests\\": "tests/"
-        },
-        "files": [
-            "src/Container/Container.php",
-            "src/proxy_class_autoload.php"
-        ]
-    },
-    "authors": [
-        {
-            "name": "titrxw",
-            "email": "1120309488@qq.com"
-        }
-    ],
-    "require": {
-        "w7/rangine": "~2.5.2",
-        "ocramius/proxy-manager": "^2.12",
-        "composer-plugin-api": "*",
-        "funkjedi/composer-include-files": "^1.0",
-        "illuminate/pipeline": "*"
-    },
-    "require-dev": {
-        "w7/php-cs-fixer": "*",
-        "phpunit/phpunit": "^8.2"
-    },
-    "scripts": {
-        "post-autoload-dump": [
-            "W7\\Aspect\\Plugin\\Plugin::process"
-        ]
-    },
-    "extra": {
-        "class": "W7\\Aspect\\Plugin\\Plugin"
-    }
+	"name": "w7/rangine-aspect",
+	"type": "library",
+	"license": "Apache-2.0",
+	"autoload": {
+		"psr-4": {
+			"W7\\Aspect\\": "src/",
+			"W7\\Tests\\": "tests/"
+		},
+		"files": [
+			"src/ProxyManager/ProxyClassCollector.php",
+			"src/proxy_class_autoload.php"
+		]
+	},
+	"authors": [
+		{
+			"name": "titrxw",
+			"email": "1120309488@qq.com"
+		}
+	],
+	"require": {
+		"ocramius/proxy-manager": "^2.12",
+		"composer-plugin-api": "*",
+		"funkjedi/composer-include-files": "^1.0",
+		"illuminate/pipeline": "*"
+	},
+	"require-dev": {
+		"w7/php-cs-fixer": "*",
+		"phpunit/phpunit": "^8.2"
+	}
 }

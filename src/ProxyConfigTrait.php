@@ -14,7 +14,8 @@ namespace W7\Aspect;
 
 use ProxyManager\Configuration;
 use ProxyManager\FileLocator\FileLocator;
-use ProxyManager\GeneratorStrategy\FileWriterGeneratorStrategy;
+use W7\Aspect\ProxyManager\Autoloader\Autoloader;
+use W7\Aspect\ProxyManager\GeneratorStrategy\FileWriterGeneratorStrategy;
 
 trait ProxyConfigTrait {
 	protected function getProxyClassDir() {
@@ -34,6 +35,8 @@ trait ProxyConfigTrait {
 		}
 		$configuration->setProxiesTargetDir($proxyClassDir);
 		$withGeneratorConfig && $configuration->setGeneratorStrategy(new FileWriterGeneratorStrategy(new FileLocator($proxyClassDir)));
+		$configuration->setProxyAutoloader(new Autoloader( new FileLocator($configuration->getProxiesTargetDir()),
+			$configuration->getClassNameInflector()));
 
 		return $configuration;
 	}

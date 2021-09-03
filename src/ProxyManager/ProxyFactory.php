@@ -14,12 +14,12 @@ namespace W7\Aspect\ProxyManager;
 
 use Closure;
 use Laminas\Code\Generator\ClassGenerator;
+use Laminas\Code\Reflection\ClassReflection;
 use ProxyManager\Configuration;
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use ProxyManager\Proxy\ValueHolderInterface;
 use ProxyManager\ProxyGenerator\ProxyGeneratorInterface;
 use ProxyManager\Version;
-use ReflectionClass;
 use W7\Aspect\ProxyManager\Generator\LazyLoadingValueHolderGenerator;
 
 class ProxyFactory extends LazyLoadingValueHolderFactory {
@@ -73,6 +73,7 @@ class ProxyFactory extends LazyLoadingValueHolderFactory {
 			->configuration
 			->getClassNameInflector()
 			->getProxyClassName($className, $proxyParameters);
+		$proxyParameters['proxyClassName'] = $proxyClassName;
 
 		if (! class_exists($proxyClassName)) {
 			$this->generateProxyClass(
@@ -102,13 +103,13 @@ class ProxyFactory extends LazyLoadingValueHolderFactory {
 		array $proxyOptions = []
 	): void {
 		$className = $this->configuration->getClassNameInflector()->getUserClassName($className);
-		$phpClass  = new ClassGenerator($proxyClassName);
+		$reflectClass = new ClassReflection($className);
+		$phpClass  = ClassGenerator::fromReflection($reflectClass);
+		/** @psalm-suppress TooManyArguments - generator interface was not updated due to BC compliance */
+		$this->getGenerator()->generate($reflectClass, $phpClass, $proxyOptions);
 
 		/** @psalm-suppress TooManyArguments - generator interface was not updated due to BC compliance */
-		$this->getGenerator()->generate(new ReflectionClass($className), $phpClass, $proxyOptions);
-
-		/** @psalm-suppress TooManyArguments - generator interface was not updated due to BC compliance */
-		$this->configuration->getGeneratorStrategy()->generate($phpClass, $proxyOptions);
+		$this->configuration->getGeneratorStrategy()->generate($phpClass, $proxyParameters);
 	}
 
 	protected function getGenerator(): ProxyGeneratorInterface {

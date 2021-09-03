@@ -15,6 +15,7 @@ namespace W7\Aspect\ProxyManager\Generator;
 use InvalidArgumentException;
 use Laminas\Code\Generator\ClassGenerator;
 use Laminas\Code\Generator\MethodGenerator;
+use Laminas\Code\Reflection\ClassReflection;
 use Laminas\Code\Reflection\MethodReflection;
 use ProxyManager\Exception\InvalidProxiedClassException;
 use ProxyManager\Generator\Util\ClassGeneratorUtils;
@@ -44,44 +45,61 @@ class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyL
 	public function generate(ReflectionClass $originalClass, ClassGenerator $classGenerator, array $proxyOptions = []) {
 		CanProxyAssertion::assertClassCanBeProxied($originalClass);
 
-		$interfaces       = [];
-		if ($originalClass->isInterface()) {
-			$interfaces[] = $originalClass->getName();
-		} else {
-			$classGenerator->setExtendedClass($originalClass->getName());
+		//添加use
+
+		/**
+		 * @var ClassReflection $trait
+		 */
+		foreach ($originalClass->getTraits() as $trait) {
+			$classGenerator->addTrait('\\' . $trait->getName());
+			foreach ($trait->getMethods() as $method) {
+				$classGenerator->removeMethod($method->getName());
+			}
 		}
 
-		$classGenerator->setImplementedInterfaces($interfaces);
 		$traits = array_merge($this->defaultTrait, (array)($proxyOptions['proxy_traits'] ?? []));
 		foreach ($traits as $item) {
 			$classGenerator->addTrait($item);
 		}
 
+		$proxyMethods = ProxiedMethodsFilter::getProxiedMethods($originalClass, $proxyOptions['proxy_methods'] ?? []);
+		foreach ($proxyMethods as $method) {
+			if ($classGenerator->hasMethod($method->getName())) {
+				$classGenerator->removeMethod($method->getName());
+			}
+		}
+		
 		array_map(
 			static function (MethodGenerator $generatedMethod) use ($originalClass, $classGenerator): void {
 				ClassGeneratorUtils::addMethodIfNotFinal($originalClass, $classGenerator, $generatedMethod);
 			},
 			array_map(
-				$this->buildMethodInterceptor($originalClass),
-				ProxiedMethodsFilter::getProxiedMethods($originalClass, $proxyOptions['proxy_methods'] ?? [])
+				$this->buildMethodInterceptor($originalClass, $proxyOptions['proxy_methods'] ?? []),
+				$proxyMethods
 			)
 		);
 	}
 
-	private function buildMethodInterceptor(ReflectionClass $originalClass): callable {
-		return static function (ReflectionMethod $method) use ($originalClass) : LazyLoadingMethodInterceptor {
+	private function buildMethodInterceptor(ReflectionClass $originalClass, array $proxyMethods = []): callable {
+		return static function (ReflectionMethod $method) use ($originalClass, $proxyMethods) : MethodGenerator {
 			return self::generateMethod(
 				$originalClass,
-				new MethodReflection($method->getDeclaringClass()->getName(), $method->getName())
+				new MethodReflection($method->getDeclaringClass()->getName(), $method->getName()),
+				$proxyMethods
 			);
 		};
 	}
 
 	private static function generateMethod(
 		ReflectionClass $originalClass,
-		MethodReflection $originalMethod
-	): LazyLoadingMethodInterceptor {
-		$method            = LazyLoadingMethodInterceptor::fromReflectionWithoutBodyAndDocBlock($originalMethod);
+		MethodReflection $originalMethod,
+		array $proxyMethods = []
+	): MethodGenerator {
+		$method = LazyLoadingMethodInterceptor::fromReflection($originalMethod);
+		if (!in_array($originalMethod->getName(), $proxyMethods)) {
+			return $method;
+		}
+
 		$parameters        = $originalMethod->getParameters();
 		$methodName        = $originalMethod->getName();
 		$forwardedParams   = [];
@@ -101,10 +119,9 @@ class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyL
 
 		$method->setBody(
 			ProxiedMethodReturnExpression::generate('self::__proxyCall(\\' . $originalClass->getName() . '::class, ' . var_export($methodName, true) . ', array(' . implode(', ', $initializerParams) . '), ' . $inlineFunction . ' {'
-				. ProxiedMethodReturnExpression::generate(
-					'parent::' . $methodName . '(' . implode(', ', $forwardedParams) . ')',
-					$originalMethod
-				) . '})', $originalMethod)
+				.
+				$method->getBody()
+				. '})', $originalMethod)
 		);
 
 		return $method;
