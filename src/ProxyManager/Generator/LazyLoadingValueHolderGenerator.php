@@ -129,7 +129,7 @@ class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyL
 									$classGenerator->addTraitAlias([
 										'traitName' => $adaptation->trait->toCodeString(),
 										'method' => $adaptation->method->toString()
-									], $adaptation->newName->toString());
+									], $adaptation->newName->toString(), $adaptation->newModifier);
 								}
 							}
 						}
