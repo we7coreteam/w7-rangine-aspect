@@ -9,7 +9,8 @@
 		},
 		"files": [
 			"src/ProxyManager/ProxyClassCollector.php",
-			"src/proxy_class_autoload.php"
+			"src/proxy_class_autoload.php",
+			"src/ProxyManager/Reflection/MethodReflection.php"
 		]
 	},
 	"authors": [
