@@ -20,6 +20,7 @@
 		}
 	],
 	"require": {
+		"php": ">=8.0",
 		"ocramius/proxy-manager": "^2.12",
 		"illuminate/pipeline": "*",
 		"nikic/php-parser": "^4.12"
