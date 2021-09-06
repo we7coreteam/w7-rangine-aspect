@@ -17,6 +17,10 @@ use Laminas\Code\Generator\ClassGenerator;
 use Laminas\Code\Generator\MethodGenerator;
 use Laminas\Code\Reflection\ClassReflection;
 use Laminas\Code\Reflection\MethodReflection;
+use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\TraitUse;
+use PhpParser\Node\Stmt\TraitUseAdaptation\Alias;
+use PhpParser\Node\Stmt\TraitUseAdaptation\Precedence;
 use PhpParser\ParserFactory;
 use ProxyManager\Exception\InvalidProxiedClassException;
 use ProxyManager\Generator\Util\ClassGeneratorUtils;
@@ -57,6 +61,34 @@ class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyL
 	public function generate(ReflectionClass $originalClass, ClassGenerator $classGenerator, array $proxyOptions = []) {
 		CanProxyAssertion::assertClassCanBeProxied($originalClass);
 
+		//method
+		/**
+		 * @var ClassReflection $trait
+		 */
+		$traitMethods = [];
+		foreach ($originalClass->getTraits() as $trait) {
+			foreach ($trait->getMethods() as $method) {
+				$traitMethods[] = $method->getName();
+			}
+		}
+		$proxyMethods = ProxiedMethodsFilter::getProxiedMethods($originalClass, $proxyOptions['proxy_methods'] ?? []);
+		foreach ($proxyMethods as $method) {
+			$classGenerator->removeMethod($method->getName());
+		}
+		foreach ($originalClass->getMethods() as $method) {
+			if (
+				$method->getDeclaringClass()->getName() !== $originalClass->getName() ||
+				in_array($method->getName(), $traitMethods)
+			) {
+				$classGenerator->hasMethod($method->getName()) && $classGenerator->removeMethod($method->getName());
+			}
+		}
+		foreach ($originalClass->getTraitAliases() as $alias => $origin) {
+			if ($originalClass->getMethod($alias)->getFileName() != $originalClass->getFileName()) {
+				$classGenerator->removeMethod($alias);
+			}
+		}
+
 		//use
 		$composerLoader = $this->getComposerLoader();
 		$file = $composerLoader->findFile($originalClass->getName());
@@ -76,18 +108,33 @@ class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyL
 						$classGenerator->addUse($use->name->toCodeString(), $alias);
 					}
 				}
-			}
-		}
-
-		//trait
-		/**
-		 * @var ClassReflection $trait
-		 */
-		$traitMethods = [];
-		foreach ($originalClass->getTraits() as $trait) {
-			$classGenerator->addTrait('\\' . $trait->getName());
-			foreach ($trait->getMethods() as $method) {
-				$traitMethods[] = $method->getName();
+				if ($_stmt instanceof Class_) {
+					foreach ($_stmt->stmts as $__stmt) {
+						if ($__stmt instanceof TraitUse) {
+							foreach ($__stmt->traits as $trait) {
+								$classGenerator->addTrait($trait->toCodeString());
+							}
+							foreach ($__stmt->adaptations as $adaptation) {
+								if ($adaptation instanceof Precedence) {
+									$insteadOfs = [];
+									foreach ($adaptation->insteadof as $item) {
+										$insteadOfs[] = $item->toString();
+									}
+									$classGenerator->addTraitOverride([
+										'traitName' => $adaptation->trait->toCodeString(),
+										'method' => $adaptation->method->toString()
+									], $insteadOfs);
+								}
+								if ($adaptation instanceof Alias) {
+									$classGenerator->addTraitAlias([
+										'traitName' => $adaptation->trait->toCodeString(),
+										'method' => $adaptation->method->toString()
+									], $adaptation->newName->toString());
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 		$traits = array_merge($this->defaultTrait, (array)($proxyOptions['proxy_traits'] ?? []));
@@ -95,20 +142,7 @@ class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyL
 			$classGenerator->addTrait($item);
 		}
 
-		//method
-		$proxyMethods = ProxiedMethodsFilter::getProxiedMethods($originalClass, $proxyOptions['proxy_methods'] ?? []);
-		foreach ($proxyMethods as $method) {
-			$classGenerator->removeMethod($method->getName());
-		}
-		foreach ($originalClass->getMethods() as $method) {
-			if (
-				$method->getDeclaringClass()->getName() !== $originalClass->getName() ||
-				in_array($method->getName(), $traitMethods)
-			) {
-				$classGenerator->hasMethod($method->getName()) && $classGenerator->removeMethod($method->getName());
-			}
-		}
-
+		// generate method
 		array_map(
 			static function (MethodGenerator $generatedMethod) use ($originalClass, $classGenerator): void {
 				ClassGeneratorUtils::addMethodIfNotFinal($originalClass, $classGenerator, $generatedMethod);
