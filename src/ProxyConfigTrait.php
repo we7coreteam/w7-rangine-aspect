@@ -27,16 +27,24 @@ trait ProxyConfigTrait {
 		return $runtimePath . '/proxy/';
 	}
 
+	private static function safeMakeDir($dir, $permissions = 0777, $recursive = false) {
+		if (!mkdir($dir, $permissions, $recursive) && !is_dir($dir)) {
+			throw new \RuntimeException(sprintf('Directory "%s" was not created', $dir));
+		}
+	}
+
 	protected function getConfiguration($withGeneratorConfig = false) {
 		$configuration = new Configuration();
 		$proxyClassDir = $this->getProxyClassDir();
 		if (!is_dir($proxyClassDir)) {
-			isafeMakeDir($proxyClassDir, 0777, true);
+			self::safeMakeDir($proxyClassDir, 0777, true);
 		}
 		$configuration->setProxiesTargetDir($proxyClassDir);
 		$withGeneratorConfig && $configuration->setGeneratorStrategy(new FileWriterGeneratorStrategy(new FileLocator($proxyClassDir)));
-		$configuration->setProxyAutoloader(new Autoloader( new FileLocator($configuration->getProxiesTargetDir()),
-			$configuration->getClassNameInflector()));
+		$configuration->setProxyAutoloader(new Autoloader(
+			new FileLocator($configuration->getProxiesTargetDir()),
+			$configuration->getClassNameInflector()
+		));
 
 		return $configuration;
 	}

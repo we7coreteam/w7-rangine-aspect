@@ -194,8 +194,8 @@ class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyL
 		$method->setBody(
 			ProxiedMethodReturnExpression::generate('self::__proxyCall(\\' . $originalClass->getName() . '::class, ' . var_export($methodName, true) . ', array(' . implode(', ', $initializerParams) . '), ' . $inlineFunction . ' {'
 				.
-				$method->getBody()
-				. '})', $originalMethod)
+				$method->getBody() . "\n\r"
+				. '        })', $originalMethod)
 		);
 
 		return $method;
