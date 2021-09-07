@@ -72,6 +72,6 @@ final class ProxiedMethodsFilter {
 	 * Checks whether the method cannot be proxied
 	 */
 	private static function methodCannotBeProxied(ReflectionMethod $method): bool {
-		return $method->isConstructor();
+		return false;
 	}
 }
