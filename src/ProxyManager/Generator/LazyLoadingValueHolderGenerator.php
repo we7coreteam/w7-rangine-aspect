@@ -23,7 +23,6 @@ use PhpParser\Node\Stmt\TraitUseAdaptation\Alias;
 use PhpParser\Node\Stmt\TraitUseAdaptation\Precedence;
 use PhpParser\ParserFactory;
 use ProxyManager\Exception\InvalidProxiedClassException;
-use ProxyManager\Generator\Util\ClassGeneratorUtils;
 use ProxyManager\Generator\Util\ProxiedMethodReturnExpression;
 use ProxyManager\ProxyGenerator\Assertion\CanProxyAssertion;
 use ProxyManager\ProxyGenerator\LazyLoadingValueHolder\MethodGenerator\LazyLoadingMethodInterceptor;
@@ -145,7 +144,7 @@ class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyL
 		// generate method
 		array_map(
 			static function (MethodGenerator $generatedMethod) use ($originalClass, $classGenerator): void {
-				ClassGeneratorUtils::addMethodIfNotFinal($originalClass, $classGenerator, $generatedMethod);
+				$classGenerator->addMethodFromGenerator($generatedMethod);
 			},
 			array_map(
 				$this->buildMethodInterceptor($originalClass, $proxyOptions['proxy_methods'] ?? []),
