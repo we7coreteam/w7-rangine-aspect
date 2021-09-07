@@ -44,7 +44,7 @@ class LazyLoadingValueHolderGenerator extends \ProxyManager\ProxyGenerator\LazyL
 		if (defined('BASE_PATH')) {
 			$vendorPath = BASE_PATH . '/vendor/';
 		} else {
-			$vendorPath = dirname(__DIR__, 5);
+			$vendorPath = dirname(__DIR__, 5) . '/';
 		}
 
 		return include $vendorPath . 'autoload.php';
