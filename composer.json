@@ -23,7 +23,9 @@
 		"php": ">=8.0",
 		"ocramius/proxy-manager": "^2.12",
 		"illuminate/pipeline": "*",
-		"nikic/php-parser": "^4.12"
+		"nikic/php-parser": "^4.12",
+		"illuminate/container": "*",
+		"illuminate/filesystem": "*"
 	},
 	"require-dev": {
 		"w7/php-cs-fixer": "*",
