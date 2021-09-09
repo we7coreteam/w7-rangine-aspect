@@ -28,6 +28,7 @@
 		"illuminate/filesystem": "*"
 	},
 	"require-dev": {
+		"laravel/framework": "*",
 		"w7/php-cs-fixer": "*",
 		"phpunit/phpunit": "^8.2"
 	}
