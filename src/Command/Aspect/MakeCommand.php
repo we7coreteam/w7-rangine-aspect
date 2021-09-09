@@ -32,7 +32,7 @@ class MakeCommand extends CommandAbstract {
 			->ignoreDotFiles(true)
 			->name('/^[\w\W\d]+Aspect.php$/');
 
-		$classNamespace = '\\W7\\App';
+		$classNamespace = App::getApp()->getAppNamespace();
 		$classMethodMap = [];
 		$classProxyMap = [];
 		$filesystem = new Filesystem();
