@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Rangine Aspect
+ *
+ * (c) We7Team 2019 <https://www.w7.cc>
+ *
+ * This is not a free software
+ * Using it under the license terms
+ * visited https://www.w7.cc for more details
+ */
+
 namespace W7\Aspect\Laravel;
 
 use Illuminate\Console\Command;
@@ -15,8 +25,10 @@ use W7\Aspect\ProxyManager\ProxyFactory;
 class AspectMakeCommand extends Command {
 	use ProxyConfigTrait;
 
+	protected $name = 'aspect:make';
+
 	protected function execute(InputInterface $input, OutputInterface $output) {
-		$scanDir = app_path("Aspect");
+		$scanDir = app_path('Aspect');
 		$files = Finder::create()
 			->in($scanDir)
 			->files()
@@ -38,7 +50,7 @@ class AspectMakeCommand extends Command {
 			/**
 			 * @var AspectAbstract $aspectClass
 			 */
-			$aspectClass = $classNamespace . '\\Aspect\\' . ($dir !== '' ? $dir . '\\' : '') . $file->getBasename('.php');
+			$aspectClass = $classNamespace . 'Aspect\\' . ($dir !== '' ? $dir . '\\' : '') . $file->getBasename('.php');
 			foreach ($aspectClass::$classMethodMap as $class => $methods) {
 				foreach ($methods as $method) {
 					$classMethodMap[$class][$method][] = $aspectClass;
@@ -55,8 +67,10 @@ class AspectMakeCommand extends Command {
 			'class_method_aspects' => $classMethodMap,
 			'proxy_class' => $classProxyMap
 		];
-		$filesystem->put(config_path("aspect.php"), '<?php' . "\n\rreturn " . var_export($data, true) . ';');
+		$filesystem->put(config_path('aspect.php'), '<?php' . "\n\rreturn " . var_export($data, true) . ';');
 
 		$output->success('make aspect success');
+
+		return 1;
 	}
 }

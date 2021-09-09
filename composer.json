@@ -31,5 +31,12 @@
 		"laravel/framework": "*",
 		"w7/php-cs-fixer": "*",
 		"phpunit/phpunit": "^8.2"
+	},
+	"extra": {
+		"laravel": {
+			"providers": [
+				"W7\\Aspect\\Laravel\\ServiceProvider"
+			]
+		}
 	}
 }
