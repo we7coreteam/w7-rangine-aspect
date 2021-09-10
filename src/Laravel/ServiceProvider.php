@@ -19,7 +19,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 	public function register() {
 		$this->initClassMethodAspect();
 		$this->initProxyClassCollector();
-		$this->registerCommand();
+		$this->app->runningInConsole() && $this->registerCommand();
 	}
 
 	protected function initClassMethodAspect() {
