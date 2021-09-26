@@ -14,7 +14,7 @@ composer require w7/rangine-aspect
 
 
 
-### 测试
+### 编写Aspect
 
 首先让我们编写待切入类
 
@@ -68,6 +68,16 @@ class TestAspect extends AspectAbstract {
 		return $result;
 	}
 }
+```
+
+### 生成代理类
+rangine
+```
+bin/gerent aspect:make
+```
+laravel
+```
+php artisan aspect:make
 ```
 
 使用
