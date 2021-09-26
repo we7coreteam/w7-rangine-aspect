@@ -83,6 +83,6 @@ php artisan aspect:make
 使用
 ```php
 (new TestAspectService())->test('woshishui');
-var_dump((new TestAspectService())->test1('woshishui'));
-var_dump((new TestAspectService())->test2('woshishui'));
+var_dump((new TestAspectService())->test1());
+var_dump((new TestAspectService())->test2());
 ```
