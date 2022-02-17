@@ -70,14 +70,14 @@ class TestAspect extends AspectAbstract {
 }
 ```
 
-### 生成代理类
+### 生成代理类配置
 rangine
 ```
-bin/gerent aspect:make
+bin/gerent aspect:build
 ```
 laravel
 ```
-php artisan aspect:make
+php artisan aspect:build
 ```
 
 使用

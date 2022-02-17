@@ -40,7 +40,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 
 	protected function registerCommand() {
 		$this->app->singleton('command.aspect.make', function () {
-			return new AspectMakeCommand();
+			return new BuildCommand();
 		});
 		$this->commands(['command.aspect.make']);
 	}

@@ -22,7 +22,7 @@ use W7\Aspect\Aop\AspectAbstract;
 use W7\Aspect\ProxyConfigTrait;
 use W7\Aspect\ProxyManager\ProxyFactory;
 
-class AspectMakeCommand extends Command {
+class BuildCommand extends Command {
 	use ProxyConfigTrait;
 
 	protected $name = 'aspect:make';

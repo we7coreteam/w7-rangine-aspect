@@ -21,7 +21,7 @@ use W7\Aspect\ProxyConfigTrait;
 use W7\Aspect\ProxyManager\ProxyFactory;
 use W7\Console\Command\CommandAbstract;
 
-class MakeCommand extends CommandAbstract {
+class BuildCommand extends CommandAbstract {
 	use ProxyConfigTrait;
 
 	protected function handle($options) {
